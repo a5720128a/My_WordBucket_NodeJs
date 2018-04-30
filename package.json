@@ -28,7 +28,9 @@
     "mocha": "^5.1.1",
     "request": "^2.85.0",
     "selenium": "^2.20.0",
-    "selenium-webdriver": "^4.0.0-alpha.1"
+    "selenium-webdriver": "^4.0.0-alpha.1",
+    "sequelize": "^4.37.7",
+    "sequelize-cli": "^4.0.0"
   },
   "devDependencies": {
     "supertest": "^3.0.0"
