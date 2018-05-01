@@ -10,22 +10,21 @@
   <div class="container">
 
      <h1>WordBucket App</h1>
-        
-       <h4><%= message %></h4>
-       <form action ="/addword" id="form1" method="POST">  
-           <input name="word_input" id="id_new_word" placeholder="Add new word" />  
+
+       <form action ="/addword" id="form1" method="POST">   
            <input name="explanation_input" id="id_new_eplanation" placeholder="Add explanation" />  
        </form>
        <button type="submit" form="form1" value="Submit">Submit</button>
 
+       <h2><%= word %></h2>
         
        <table id="id_word_table">
-            <% for( var i = word.length-5; i < word.length; i++){ %>
-                <tr><td id="word.word"><a href="/word/<%= id[i] %>"><%= word[i] %></a></td></tr>
+            <% for( var i = 0; i < explanation.length; i++){ %>
+                <tr><td id="word.word">explanation <%= i+1 + " : " + explanation[i] %></td></tr>
             <% } %>
         </table>
-        
-      
+        <br><br><br>
+        <a href="/">home</a>
 </div>
 
 </body>

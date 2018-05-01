@@ -8,9 +8,9 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      word: {
-        type: Sequelize.STRING,
-        references: { model: 'Word', key: 'word' }
+      ExplanationWordId: {
+        type: Sequelize.INTEGER,
+        allowNull: false
       },
       explanation_text: {
         allowNull: false,
