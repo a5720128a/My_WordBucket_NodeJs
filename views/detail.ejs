@@ -10,8 +10,9 @@
   <div class="container">
 
      <h1>WordBucket App</h1>
-
-       <form action ="/addword" id="form1" method="POST">   
+        
+       <h4><%= message %></h4>
+       <form action ="/word/<%= wordID %>/addexplanation" id="form1" method="POST"> 
            <input name="explanation_input" id="id_new_eplanation" placeholder="Add explanation" />  
        </form>
        <button type="submit" form="form1" value="Submit">Submit</button>
