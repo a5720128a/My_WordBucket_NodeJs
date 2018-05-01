@@ -5,7 +5,7 @@ var db = require('./models');
 var Word = db.Word;
 var Explanation = db.Explanation;
 
-const Explanation_Word = Explanation.belongsTo(Word, {as: 'Explanation_Word'});
+var Explanation_Word = Explanation.belongsTo(Word, {as: 'Explanation_Word'});
 //Word.Explanation = Word.hasMany(Explanation);
 
 var bodyParser = require("body-parser");
@@ -45,6 +45,7 @@ function addingNewWord (req, res, next) {  //post route for adding new word
       include: [ Explanation_Word ]
     });
   }
+  res.status(200)
   res.redirect("/");  //after adding to the array go back to the root route    
 }
 
@@ -152,7 +153,6 @@ function view_word(req, res) { //view word detail
   });
 }
 
-
 // ------------------------- call function -------------------------
 
 app.use('/addword', addingNewWord); //call function add word
@@ -166,7 +166,9 @@ app.get('/', renderDisplay)
 
 app.get('/word/:id',view_word)
 
-app.listen(3000, function () {
+var server = app.listen(3000, function () {
   //db.sequelize.sync();
-  //console.log('Example app listening on port 3000!')
+  console.log('Example app listening on port 3000')
 });
+
+module.exports = server //for test
