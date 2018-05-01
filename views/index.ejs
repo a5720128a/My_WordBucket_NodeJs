@@ -11,12 +11,13 @@
 
      <h1> A Simple WordBucket App </h1>
 
-       <form action ="/addword" method="POST">
-       <input type="text" name="newword" placeholder="add new word">        
+       <form action ="/addword" method="POST">  
+       <input name="word_input" id="id_new_word" placeholder="Add new word" />  
+       <input name="explanation_input" id="id_new_eplanation" placeholder="Add explanation" />  
        <button> Add Word </button>
 
     <h2> Added Word </h2>
-       
+       <% word %>
        <% for( var i = 0; i < word.length; i++){ %>
        <li><input type="checkbox" name="check" value="<%= word[i] %>" /> <%= word[i] %> </li>
 

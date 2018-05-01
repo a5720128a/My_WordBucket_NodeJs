@@ -5,7 +5,6 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Word.associate = function(models) {
     // associations can be defined here
-    Word.hasMany(Explanation, {foreignKey: 'word', sourceKey: 'word'});
   };
   return Word;
 };

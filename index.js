@@ -1,24 +1,37 @@
 var express = require('express'); //require the just installed express app
 var app = express(); //then we call express
+var db = require('./models');
+var Word = db.Word;
+var Explan = db.Explanation;
 
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set('view engine', 'ejs'); //template
 
-//the word array with initial placeholders for added word
-var word = ["socks", "practise"];
 var complete = [];
 
 //function
 function addingNewWord (req, res) {  //post route for adding new word
-    var newWord = req.body.newword;
-    word.push(newWord);  //add the new word from the post route into the array
+    //var newWord = req.body.word_input;
+    //word.push(newWord);
+    Word.create({ 
+      word: req.body.word_input,
+    });  //add the new word from the post route into the array
     res.redirect("/");  //after adding to the array go back to the root route    
 }
 
 function renderDisplay(req, res) {  //render the ejs and display added word
+  Word.findAll({
+    attributes: ['word'],
+    raw : true
+  }).then(function(query) {
+    var word = [];
+    query.forEach(function(item) {
+      word.push(item.word);
+    });
     res.render("index", { word: word, complete: complete });
+  });
 }
 
 // call function
@@ -48,5 +61,6 @@ app.post("/removeword", function(req, res) {
 app.get("/", renderDisplay) 
 //the server is listening on port 3000 for connections
 app.listen(3000, function () {
-  console.log('Example app listening on port 3000!')
+  //db.sequelize.sync();
+  //console.log('Example app listening on port 3000!')
 });

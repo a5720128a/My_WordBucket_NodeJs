@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Explanation.associate = function(models) {
     // associations can be defined here
-    Explanation.belongsTo(Word, {foreignKey: 'word', targetKey: 'word'});
+    Explanation.belongsTo(models.Word);
   };
   return Explanation;
 };
