@@ -1,7 +1,7 @@
 <html>
 
   <head>
-    <title>Word Bucket</title>
+    <title> WordBucket App </title>
     <link href="https://fonts.googleapis.com/css?family=Lato:100"     rel="stylesheet">
     <link href="/styles.css" rel="stylesheet">
   </head>
@@ -9,28 +9,27 @@
 <body>
   <div class="container">
 
-     <h1>Word Bucket</h1>
+     <h1>Search Word</h1>
         
        <h4><%= message %></h4>
-       <form action ="/addword" id="form1" method="POST">  
-           <input name="word_input" id="id_new_word" placeholder="Add new word" />  
-           <input name="explanation_input" id="id_new_eplanation" placeholder="Add explanation" />  
+       <form action ="/search/byword" id="form1" method="POST">  
+           <input name="search_input" id="id_search" placeholder="Search the word" />  
        </form>
        <button type="submit" form="form1" value="Submit">Submit</button>
 
-        
+      <% if(word.length == 0){ %>
+          <h4>Word not found</h4>
+      <% } %>
+
        <table id="id_word_table">
             <% for( var i = word.length-5; i < word.length; i++){ %>
                 <tr><td id="word.word"><a href="/word/<%= id[i] %>"><%= word[i] %></a></td></tr>
             <% } %>
         </table>
-        <br>
+        <br><br><br>
+        <a href="/">home</a>
+        
       
-        <form action ="/search/byword" id="form2" method="POST">  
-           <input name="search_input" id="id_search" placeholder="Search word" />
-       </form>
-       <button type="submit" form="form2" value="Submit">Submit</button>
-
 </div>
 
 </body>

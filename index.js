@@ -1,6 +1,7 @@
 //------------------------- setting and import -------------------------
 var express = require('express'); //require the just installed express app
 var app = express(); //then we call express
+var Op = require('sequelize').Op;
 var db = require('./models');
 var Word = db.Word;
 var Explanation = db.Explanation;
@@ -97,11 +98,11 @@ function renderDisplayWithMessage(req, res) {  //render the ejs and display adde
         var like = [];
         var dislike = [];
         var wordID = [];
+        wordID.push(wordID_ref);
         ref.forEach(function(item) {
           explanation.push(item.explanation_text);
           like.push(item.like);
           dislike.push(item.dislike);
-          wordID.push(item.ExplanationWordId);
         });
         res.render("detail", { word: word , wordID: wordID , explanation: explanation , message: message });
       });
@@ -142,22 +143,67 @@ function view_word(req, res) { //view word detail
       var like = [];
       var dislike = [];
       var wordID = [];
+      wordID.push(wordID_ref);
       ref.forEach(function(item) {
         explanation.push(item.explanation_text);
         like.push(item.like);
         dislike.push(item.dislike);
-        wordID.push(item.ExplanationWordId);
       });
       res.render("detail", { word: word , wordID: wordID , explanation: explanation , message: message });
     });
   });
 }
 
-// ------------------------- call function -------------------------
+function searchWord(req, res) { //search word
+  if (req.body.search_input)
+    var search_ref = req.body.search_input.toString();
+  else var search_ref = req.params.word.toString();
+  var word = [];
+  var id = [];
+  if(search_ref == ""){
+    message = "Please enter the word.";
+    return res.render("search", { word: word , id: id , message: message });
+  }
+  else if (search_ref != ""){
+    message = ""
+    Word.findAll({
+      where: {
+        word: {
+          $like: "%"+search_ref+"%"
+        }
+      },
+      attributes: ['id','word'],
+      raw : true
+    }).then(function(query) {
+      query.forEach(function(item) {
+        word.push(item.word);
+        id.push(item.id);
+      });
+      return res.render("search", { word: word , id: id , message: message })
+    });
+  }
+}
+
+function likeExplanation(req, res) { //like explanation function
+  pass;
+}
+
+function dislikeExplanation(req, res) { //dislike explanation function
+  pass;
+}
+
+
+// ------------------------- path and call function -------------------------
 
 app.use('/addword', addingNewWord); //call function add word
 
 app.use('/word/:id/addexplanation', addingNewExplanation);
+
+app.use('/word/:id/like', likeExplanation);
+
+app.use('/word/:id/dislike', dislikeExplanation);
+
+app.use('/search/:word', searchWord);
 
 app.get('/message', renderDisplayWithMessage);
 

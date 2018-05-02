@@ -59,46 +59,55 @@ describe('Unit testing', function(){
         });
     });
 
-/*
-    //------------AllAroundModelsTest------------//
-    it('test_saving_and_retrieving_words', function(){
-        chai.request(server)
-            .get('/')
-            .end(function(err, res){
-              res.status.should.equal(200);
-              res.should.be.json;
-              res.body.should.be.a('array');
+    //------------NewExplanationTest------------//
+    it('test_can_save_a_POST_request_to_an_existing_word', function(done){
+        server
+        .post("word/1/addexplanation")
+        .send({word_input: "JA",explanation_input: "VA"})
+        .expect("Content-type",/json/)
+        .expect(302)
+        .end(function(err, res){
+            res.status.should.equal(302);
+       
+            Explanation.create({ 
+              ExplanationWordId: 1,
+              explanation_text: "Test",
+              like: 0,
+              dislike: 0,
+            }).then( function (test) {
+              // do some tests on article here
+              test.destroy();
               done();
             });
+        });
+    });
+    it('test_redirects_to_word_view', function(done){
+        server
+        .post("word/1/addexplanation")
+        .send({word_input: "JA",explanation_input: "VA"})
+        .expect("Content-type",/json/)
+        .expect(302)
+        .end(function(err, res){
+            res.status.should.equal(302);
+            done();
+        });
     });
 
-/*
-    //------------NewWordTest------------//
-    it('test_can_save_a_POST_request', function(){
-        
-    });
-
-    //------------NewExplanationTest------------//
-    it('test_can_save_a_POST_request_to_an_existing_word', function(){
-        
-    });
-    it('test_redirects_to_word_view', function(){
-        
-    });
-
-
-/* ================== future test ==================
 
     //------------SearchAndBrowseTest------------//
-    it('test_uses_search_template', function(){
-        
-    });
     it('test_render_after_POST', function(){
-        
+        server
+        .post("search/x")
+        .send({search_input: "x"})
+        .expect("Content-type",/json/)
+        .expect(302)
+        .end(function(err, res){
+            res.status.should.equal(302);
+            done();
+        });
     });
-    it('test_return_correct_text', function(){
-        
-    });
+
+/* ================== future test ==================
 
     //------------VoteTest------------//
     it('test_redirects_like_to_word_view', function(){

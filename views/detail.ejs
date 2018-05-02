@@ -21,7 +21,12 @@
         
        <table id="id_word_table">
             <% for( var i = 0; i < explanation.length; i++){ %>
-                <tr><td id="word.word">explanation <%= i+1 + " : " + explanation[i] %></td></tr>
+                <tr><td id="word.word">explanation <%= i+1 + " : " + explanation[i] %><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="/word/<%= wordID %>/like">LIKE</a> &nbsp; 
+                    <a href="/word/<%= wordID %>/dislike">DISLIKE</a>
+                </td></tr>
             <% } %>
         </table>
         <br><br><br>
