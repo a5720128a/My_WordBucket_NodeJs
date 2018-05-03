@@ -10,7 +10,13 @@
   <div class="container">
 
      <h1>Word Bucket</h1>
-        
+       
+       <br>browse<br>
+            <% for( var i = 0; i < alphabets.length; i++ ) { %>
+                <a href="/search/<%= alphabets[i] %>"><%= alphabets[i] %></a>&nbsp;
+            <% } %>
+       <br>
+
        <h4><%= message %></h4>
        <form action ="/addword" id="form1" method="POST">  
            <input name="word_input" id="id_new_word" placeholder="Add new word" />  

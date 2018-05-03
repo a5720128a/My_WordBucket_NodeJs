@@ -22,8 +22,6 @@ var type = 1;
 function addingNewWord (req, res, next) {  //post route for adding new word
   var word_ref = req.body.word_input
   var explanation_ref = req.body.explanation_input
-  
-
   Word.findAll({
     where: {
       word: word_ref
@@ -74,6 +72,7 @@ function addingNewWord (req, res, next) {  //post route for adding new word
     else {      
       var wordID_ref = id_k.toString()
       console.log("duplicate")
+      //no explanation
       if (explanation_ref != "") {
         Explanation.create({
           ExplanationWordId: wordID_ref,
@@ -84,7 +83,9 @@ function addingNewWord (req, res, next) {  //post route for adding new word
         type = 1;
         message = "duplicate word, your explanation add to existing word.";
         return res.redirect("/message");
-      }else if (explanation_ref == "") {
+      }
+      //have explanation
+      else if (explanation_ref == "") {
         type = 1;
         message = "duplicate word.";
         return res.redirect("/message");
@@ -114,6 +115,7 @@ function addingNewExplanation (req, res, next) {  //post route for adding new ex
 
 function renderDisplayWithMessage(req, res) {  //render the ejs and display added word
   if (type == 1){
+    var alphabets = ("abcdefghijklmnopqrstuvwxyz").split("");
     Word.findAll({
       attributes: ['id','word'],
       raw : true
@@ -124,7 +126,7 @@ function renderDisplayWithMessage(req, res) {  //render the ejs and display adde
         word.push(item.word);
         id.push(item.id);
       });
-      res.render("index", { word: word , id: id , message: message });
+      res.render("index", { alphabets: alphabets , word: word , id: id , message: message });
     });
   }else if(type == 2){
     var wordID_ref = currentWord_id
@@ -155,6 +157,7 @@ function renderDisplayWithMessage(req, res) {  //render the ejs and display adde
 
 function renderDisplay(req, res) {  //render the ejs and display added word
   message = ""
+  var alphabets = ("abcdefghijklmnopqrstuvwxyz").split("");
   Word.findAll({
     attributes: ['id','word'],
     raw : true
@@ -165,7 +168,7 @@ function renderDisplay(req, res) {  //render the ejs and display added word
       word.push(item.word);
       id.push(item.id);
     });
-    res.render("index", { word: word , id: id , message: message , message: message });
+    res.render("index", { alphabets: alphabets , word: word , id: id , message: message , message: message });
   });
 }
 
@@ -200,32 +203,61 @@ function view_word(req, res) { //view word detail
 }
 
 function searchWord(req, res) { //search word
-  if (req.body.search_input)
+  if (req.body.search_input) {
     var search_ref = req.body.search_input.toString();
-  else var search_ref = req.params.word.toString();
+    var by_word = "yes";
+  }else {
+    var search_ref = req.params.word.toString();
+    var by_word = "no";
+  }
   var word = [];
   var id = [];
-  if(search_ref == ""){
-    message = "Please enter the word.";
-    return res.render("search", { word: word , id: id , message: message });
-  }
-  else if (search_ref != ""){
-    message = ""
-    Word.findAll({
-      where: {
-        word: {
-          $like: "%"+search_ref+"%"
-        }
-      },
-      attributes: ['id','word'],
-      raw : true
-    }).then(function(query) {
-      query.forEach(function(item) {
-        word.push(item.word);
-        id.push(item.id);
+  if (by_word == "yes") {
+    if(search_ref == ""){
+      message = "Please enter the word.";
+      return res.render("search", { word: word , id: id , message: message });
+    }
+    else if (search_ref != ""){
+      message = ""
+      Word.findAll({
+        where: {
+          word: {
+            $like: "%"+search_ref+"%"
+          }
+        },
+        attributes: ['id','word'],
+        raw : true
+      }).then(function(query) {
+        query.forEach(function(item) {
+          word.push(item.word);
+          id.push(item.id);
+        });
+        return res.render("search", { word: word , id: id , message: message })
       });
-      return res.render("search", { word: word , id: id , message: message })
-    });
+    }
+  }else if (by_word == "no") { 
+    if(search_ref == ""){
+      message = "Please enter the word.";
+      return res.render("search", { word: word , id: id , message: message });
+    }
+    else if (search_ref != ""){
+      message = ""
+      Word.findAll({
+        where: {
+          word: {
+            $like: search_ref+"%"
+          }
+        },
+        attributes: ['id','word'],
+        raw : true
+      }).then(function(query) {
+        query.forEach(function(item) {
+          word.push(item.word);
+          id.push(item.id);
+        });
+        return res.render("search", { word: word , id: id , message: message })
+      });
+    }
   }
 }
 
