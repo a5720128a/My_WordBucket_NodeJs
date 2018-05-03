@@ -107,17 +107,24 @@ describe('Unit testing', function(){
         });
     });
 
-/* ================== future test ==================
-
     //------------VoteTest------------//
     it('test_redirects_like_to_word_view', function(){
-        
+        server
+        .get("word/1/1/like")
+        .expect(302)
+        .end(function(err, res){
+            res.status.should.equal(302);
+            done();
+        });
     });
     it('test_redirects_dislike_to_word_view', function(){
-        
+        server
+        .get("word/1/1/dislike")
+        .expect(302)
+        .end(function(err, res){
+            res.status.should.equal(302);
+            done();
+        });
     });
-
-    
-*/
 
 });

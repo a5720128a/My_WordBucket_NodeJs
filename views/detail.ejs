@@ -19,13 +19,13 @@
 
        <h2><%= word %></h2>
         
-       <table id="id_word_table">
+       <table id="id_explanation_table">
             <% for( var i = 0; i < explanation.length; i++){ %>
                 <tr><td id="word.word">explanation <%= i+1 + " : " + explanation[i] %><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="/word/<%= wordID %>/like">LIKE</a> &nbsp; 
-                    <a href="/word/<%= wordID %>/dislike">DISLIKE</a>
+                   <%= like[i] %> &nbsp; <a href="/word/<%= wordID %>/<%= explanationID[i] %>/like">LIKE</a> &nbsp; 
+                   <%= dislike[i] %> &nbsp;  <a href="/word/<%= wordID %>/<%= explanationID[i] %>/dislike">DISLIKE</a>
                 </td></tr>
             <% } %>
         </table>

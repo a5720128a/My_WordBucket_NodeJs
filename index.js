@@ -22,32 +22,75 @@ var type = 1;
 function addingNewWord (req, res, next) {  //post route for adding new word
   var word_ref = req.body.word_input
   var explanation_ref = req.body.explanation_input
-  if(word_ref == "" && explanation_ref == ""){
-    type = 1;
-    message = "Please enter the word.";
-    return res.redirect("/message");
-  }
-  else if (word_ref != "" && explanation_ref == ""){
-    message = ""
-    Word.create({ 
-      word: req.body.word_input,
-    });  //add the new word from the post route into the array
-  }
-  else if (word_ref != "" && explanation_ref != ""){
-    message = ""
-    Explanation.create({
-      Explanation_Word: {
-        word: req.body.word_input,
-      },
-      explanation_text: req.body.explanation_input,
-      like: 0,
-      dislike: 0,
-    }, {
-      include: [ Explanation_Word ]
+  
+
+  Word.findAll({
+    where: {
+      word: word_ref
+    },
+    attributes: ['id','word'],
+    raw : true
+  }).then(function(query) {
+    var word_k = [];
+    var id_k = []
+    var ref = [];
+    query.forEach(function(item) {
+      word_k.push(item.word);
+      id_k.push(item.id);
     });
-  }
-  res.status(200)
-  res.redirect("/");  //after adding to the array go back to the root route    
+    console.log(word_k)
+    console.log(ref)
+    //no-duplicate
+    if (word_k.toString() == ref.toString()) {
+      console.log("no-duplicate")
+      if(word_ref == "" && explanation_ref == ""){
+        type = 1;
+        message = "Please enter the word.";
+        return res.redirect("/message");
+      }
+      else if (word_ref != "" && explanation_ref == ""){
+        message = ""
+        Word.create({ 
+          word: req.body.word_input,
+        });  //add the new word from the post route into the array
+      }
+      else if (word_ref != "" && explanation_ref != ""){
+        message = ""
+        Explanation.create({
+          Explanation_Word: {
+            word: req.body.word_input,
+          },
+          explanation_text: req.body.explanation_input,
+          like: 0,
+          dislike: 0,
+        }, {
+          include: [ Explanation_Word ]
+        });
+      }
+      res.status(200)
+      res.redirect("/");  //after adding to the array go back to the root route 
+    }
+    //duplicate message "duplicate word, your explanation add to existing word."
+    else {      
+      var wordID_ref = id_k.toString()
+      console.log("duplicate")
+      if (explanation_ref != "") {
+        Explanation.create({
+          ExplanationWordId: wordID_ref,
+          explanation_text: req.body.explanation_input,
+          like: 0,
+          dislike: 0,
+        });
+        type = 1;
+        message = "duplicate word, your explanation add to existing word.";
+        return res.redirect("/message");
+      }else if (explanation_ref == "") {
+        type = 1;
+        message = "duplicate word.";
+        return res.redirect("/message");
+      }
+    }
+  }); 
 }
 
 function addingNewExplanation (req, res, next) {  //post route for adding new explanation
@@ -136,20 +179,22 @@ function view_word(req, res) { //view word detail
       where: {
         ExplanationWordId: wordID_ref
       },
-      attributes: ['ExplanationWordId','explanation_text','like','dislike'],
+      attributes: ['id','ExplanationWordId','explanation_text','like','dislike'],
       raw : true
     }).then(function(ref) {
       var explanation = [];
       var like = [];
       var dislike = [];
       var wordID = [];
+      var explanationID = [];
       wordID.push(wordID_ref);
       ref.forEach(function(item) {
         explanation.push(item.explanation_text);
         like.push(item.like);
         dislike.push(item.dislike);
+        explanationID.push(item.id);
       });
-      res.render("detail", { word: word , wordID: wordID , explanation: explanation , message: message });
+      res.render("detail", { word: word , wordID: wordID , explanationID : explanationID , explanation: explanation , like : like , dislike : dislike , message: message });
     });
   });
 }
@@ -185,11 +230,51 @@ function searchWord(req, res) { //search word
 }
 
 function likeExplanation(req, res) { //like explanation function
-  pass;
+  var wordID_ref = Number(req.params.wordid)
+  var explanationID_ref = Number(req.params.explanationid)
+  Explanation.findAll({
+    where: {
+      id: explanationID_ref
+    },
+    attributes: ['id','explanation_text','like','dislike'],
+    raw : true
+  }).then(function(ref) {
+    var like = [];
+    ref.forEach(function(item) {
+      like.push(item.like);
+    });
+    Explanation.update({
+      like: Number(like.toString())+1
+    },{where: {
+      id: explanationID_ref
+    }});
+    console.log(Number(like.toString())+1)
+    return res.redirect("/word/"+wordID_ref);
+  });
 }
 
 function dislikeExplanation(req, res) { //dislike explanation function
-  pass;
+  var wordID_ref = Number(req.params.wordid)
+  var explanationID_ref = Number(req.params.explanationid)
+  Explanation.findAll({
+    where: {
+      id: explanationID_ref
+    },
+    attributes: ['id','explanation_text','like','dislike'],
+    raw : true
+  }).then(function(ref) {
+    var dislike = [];
+    ref.forEach(function(item) {
+      dislike.push(item.dislike);
+    });
+    Explanation.update({
+      dislike: Number(dislike.toString())+1
+    },{where: {
+      id: explanationID_ref
+    }});
+    console.log(Number(dislike.toString())+1)
+    return res.redirect("/word/"+wordID_ref);
+  });
 }
 
 
@@ -199,9 +284,9 @@ app.use('/addword', addingNewWord); //call function add word
 
 app.use('/word/:id/addexplanation', addingNewExplanation);
 
-app.use('/word/:id/like', likeExplanation);
+app.use('/word/:wordid/:explanationid/like', likeExplanation);
 
-app.use('/word/:id/dislike', dislikeExplanation);
+app.use('/word/:wordid/:explanationid/dislike', dislikeExplanation);
 
 app.use('/search/:word', searchWord);
 
