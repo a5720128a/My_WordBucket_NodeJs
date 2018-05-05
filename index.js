@@ -6,6 +6,11 @@ var db = require('./models');
 var Word = db.Word;
 var Explanation = db.Explanation;
 
+//import export
+var fileUpload = require('express-fileupload');
+var json2csv = require('json2csv').Parser;;
+app.use(fileUpload());
+
 var Explanation_Word = Explanation.belongsTo(Word, {as: 'Explanation_Word'});
 //Word.Explanation = Word.hasMany(Explanation);
 
@@ -29,8 +34,8 @@ function addingNewWord (req, res, next) {  //post route for adding new word
     attributes: ['id','word'],
     raw : true
   }).then(function(query) {
-    var word_k = [];
-    var id_k = []
+    var word_k = []; //word key
+    var id_k = []; //id key
     var ref = [];
     query.forEach(function(item) {
       word_k.push(item.word);
@@ -309,6 +314,50 @@ function dislikeExplanation(req, res) { //dislike explanation function
   });
 }
 
+function export_csv(req, res, next) { //export csv
+  var wordID_ref = Number(req.params.wordid)
+  message = ""
+
+  Word.findAll({
+    where: {
+      id: 3
+    },
+    attributes: ['word'],
+    raw : true
+  }).then(function(query) {    
+    Explanation.findAll({
+      where: {
+        ExplanationWordId: 3
+      },
+      attributes: ['explanation_text'],
+      raw : true
+    }).then(function(ref) {
+      var word_query = [];
+      query.forEach(function(item) {
+        word_query.push(item.word);
+      });
+      var data_json = new Array();
+      ref.forEach(function(item) {
+        var data_temp = {
+          "word" : word_query.toString(),
+          "explanation" : item.explanation_text
+        };
+        data_json.push(data_temp)
+      });
+      var fields = ['word','explanation'];
+      var data = new json2csv({ fields });
+      var csv = data.parse(data_json);
+      console.log(csv);
+      res.attachment('export.csv');
+      res.status(200).send(csv);
+    });
+  });
+}
+
+
+function import_csv(req, res, next) { //import csv
+  
+}
 
 // ------------------------- path and call function -------------------------
 
@@ -319,6 +368,10 @@ app.use('/word/:id/addexplanation', addingNewExplanation);
 app.use('/word/:wordid/:explanationid/like', likeExplanation);
 
 app.use('/word/:wordid/:explanationid/dislike', dislikeExplanation);
+
+app.use('/word/:wordid/export', export_csv);
+
+app.use('/word/:wordid/import', import_csv);
 
 app.use('/search/:word', searchWord);
 

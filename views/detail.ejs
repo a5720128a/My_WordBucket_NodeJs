@@ -29,6 +29,14 @@
                 </td></tr>
             <% } %>
         </table>
+
+        <br>
+        <a href="/word/<%= wordID %>/export">export</a><br><br>
+        <form action="/word/<%= wordID %>/import" method="POST" encType="multipart/form-data">
+            <input type="file" name="file" accept="*.csv" />
+            <input type="submit" value="Upload" />
+        </form>
+
         <br><br><br>
         <a href="/">home</a>
 </div>
