@@ -8,8 +8,11 @@ var Explanation = db.Explanation;
 
 //import export
 var fileUpload = require('express-fileupload');
-var json2csv = require('json2csv').Parser;;
+var json2csv = require('json2csv').Parser;
+var csv = require('fast-csv');
 app.use(fileUpload());
+
+
 
 var Explanation_Word = Explanation.belongsTo(Word, {as: 'Explanation_Word'});
 //Word.Explanation = Word.hasMany(Explanation);
@@ -320,14 +323,14 @@ function export_csv(req, res, next) { //export csv
 
   Word.findAll({
     where: {
-      id: 3
+      id: wordID_ref
     },
     attributes: ['word'],
     raw : true
   }).then(function(query) {    
     Explanation.findAll({
       where: {
-        ExplanationWordId: 3
+        ExplanationWordId: wordID_ref
       },
       attributes: ['explanation_text'],
       raw : true
@@ -356,7 +359,32 @@ function export_csv(req, res, next) { //export csv
 
 
 function import_csv(req, res, next) { //import csv
+  if (!req.files)
+    return res.status(400).send('No files were uploaded.');
+  var csvData = [];
+  let uploadedCsv = req.files.csv_file.data.toString();
+  var wordID_ref = Number(req.params.wordid)
   
+  csv
+   .fromString(uploadedCsv, {
+     headers: true,
+     ignoreEmpty: true
+   })
+   .on("data", function(data){
+     csvData.push(data);
+   })
+   .on("end", function(){
+     csvData.forEach(function(item) {
+       Explanation.create({
+         ExplanationWordId: wordID_ref,
+         explanation_text: item.explanation,
+         like: 0,
+         dislike: 0,
+       });
+     });
+   });
+
+  return res.redirect("/word/"+wordID_ref);
 }
 
 // ------------------------- path and call function -------------------------
