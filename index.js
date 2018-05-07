@@ -44,8 +44,6 @@ function addingNewWord (req, res, next) {  //post route for adding new word
       word_k.push(item.word);
       id_k.push(item.id);
     });
-    console.log(word_k)
-    console.log(ref)
     //no-duplicate
     if (word_k.toString() == ref.toString()) {
       console.log("no-duplicate")
@@ -79,20 +77,42 @@ function addingNewWord (req, res, next) {  //post route for adding new word
     //duplicate message "duplicate word, your explanation add to existing word."
     else {      
       var wordID_ref = id_k.toString()
-      console.log("duplicate")
-      //no explanation
-      if (explanation_ref != "") {
-        Explanation.create({
-          ExplanationWordId: wordID_ref,
-          explanation_text: req.body.explanation_input,
-          like: 0,
-          dislike: 0,
-        });
-        type = 1;
-        message = "duplicate word, your explanation add to existing word.";
-        return res.redirect("/message");
-      }
       //have explanation
+      if (explanation_ref != "") {
+        Explanation.findAll({
+          where: {
+            explanation_text: explanation_ref,
+            ExplanationWordId: wordID_ref
+          },
+          attributes: ['id','explanation_text'],
+          raw : true
+        }).then(function(query2) {
+          var explanation_k = []; //explanation key
+          var id_k2 = []; //id key2
+          query2.forEach(function(item) {
+            explanation_k.push(item.explanation_text);
+            id_k2.push(item.id);
+          });
+          //no-duplicate
+          if (explanation_k.toString() == ref.toString()) {
+            Explanation.create({
+              ExplanationWordId: wordID_ref,
+              explanation_text: req.body.explanation_input,
+              like: 0,
+              dislike: 0,
+            });
+            type = 1;
+            message = "duplicate word, your explanation add to existing word.";
+            return res.redirect("/message");
+          }//duplicate
+          else {
+            type = 1;
+            message = "duplicate word or explanation.";
+            return res.redirect("/message");
+          }
+        });
+      }
+      //no explanation
       else if (explanation_ref == "") {
         type = 1;
         message = "duplicate word.";
@@ -111,14 +131,39 @@ function addingNewExplanation (req, res, next) {  //post route for adding new ex
     return res.redirect("/message");
   }else if (explanation_ref != ""){
     message = ""
-    Explanation.create({
-      ExplanationWordId: wordID_ref,
-      explanation_text: req.body.explanation_input,
-      like: 0,
-      dislike: 0,
+    
+    Explanation.findAll({
+      where: {
+        explanation_text: explanation_ref,
+        ExplanationWordId: wordID_ref
+      },
+      attributes: ['id','explanation_text'],
+      raw : true
+    }).then(function(query) {
+      var explanation_k = []; //explanation key
+      var id_k2 = []; //id key2
+      var ref = [];
+      query.forEach(function(item) {
+        explanation_k.push(item.explanation_text);
+        id_k2.push(item.id);
+      });
+      //no-duplicate
+      if (explanation_k.toString() == ref.toString()) {
+        Explanation.create({
+          ExplanationWordId: wordID_ref,
+          explanation_text: req.body.explanation_input,
+          like: 0,
+          dislike: 0,
+        });
+        res.redirect("/word/"+wordID_ref);  //after adding to the array go back to the root route  
+      }//duplicate
+      else {
+        type = 2;
+        message = "duplicate explanation.";
+        return res.redirect("/message");
+      }
     });
-  }
-  res.redirect("/word/"+wordID_ref);  //after adding to the array go back to the root route    
+  }  
 }
 
 function renderDisplayWithMessage(req, res) {  //render the ejs and display added word
@@ -144,20 +189,22 @@ function renderDisplayWithMessage(req, res) {  //render the ejs and display adde
         where: {
           ExplanationWordId: wordID_ref
         },
-        attributes: ['ExplanationWordId','explanation_text','like','dislike'],
+        attributes: ['id','ExplanationWordId','explanation_text','like','dislike'],
         raw : true
       }).then(function(ref) {
         var explanation = [];
         var like = [];
         var dislike = [];
         var wordID = [];
+        var explanationID = [];
         wordID.push(wordID_ref);
         ref.forEach(function(item) {
           explanation.push(item.explanation_text);
           like.push(item.like);
           dislike.push(item.dislike);
+          explanationID.push(item.id);
         });
-        res.render("detail", { word: word , wordID: wordID , explanation: explanation , message: message });
+        res.render("detail", { word: word , wordID: wordID , explanationID : explanationID , explanation: explanation , like : like , dislike : dislike , message: message });
       });
     });
   }
@@ -188,7 +235,7 @@ function view_word(req, res) { //view word detail
     var word = query.word;
     Explanation.findAll({
       where: {
-        ExplanationWordId: wordID_ref
+        ExplanationWordId: wordID_ref,
       },
       attributes: ['id','ExplanationWordId','explanation_text','like','dislike'],
       raw : true
@@ -375,12 +422,29 @@ function import_csv(req, res, next) { //import csv
    })
    .on("end", function(){
      csvData.forEach(function(item) {
-       Explanation.create({
-         ExplanationWordId: wordID_ref,
-         explanation_text: item.explanation,
-         like: 0,
-         dislike: 0,
-       });
+      Explanation.findAll({
+        where: {
+          explanation_text: item.explanation,
+          ExplanationWordId: wordID_ref
+        },
+        attributes: ['id','explanation_text'],
+        raw : true
+      }).then(function(query) {
+        var explanation_k = []; //explanation key
+        var ref = [];
+        query.forEach(function(item) {
+          explanation_k.push(item.explanation_text);
+        });
+        //no-duplicate
+        if (explanation_k.toString() == ref.toString()) {
+          Explanation.create({
+            ExplanationWordId: wordID_ref,
+            explanation_text: item.explanation,
+            like: 0,
+            dislike: 0,
+          });
+        }
+      });
      });
    });
 
